@@ -8,7 +8,12 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "bootstrap": "cdk bootstrap",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy --force --all",
+    "predeploy": "npm run build",
+    "start:all": "npm run bootstrap && npm run deploy"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
