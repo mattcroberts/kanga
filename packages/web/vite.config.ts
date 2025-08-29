@@ -11,7 +11,7 @@ export default defineConfig({
   },
   css: {
     postcss: {
-      plugins: [pandacss, autoprefixer],
+      plugins: [pandacss as any, autoprefixer],
     },
   },
 

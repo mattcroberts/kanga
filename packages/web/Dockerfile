@@ -1,24 +1,33 @@
 # Use official Node.js image as the base
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS deps
 
 # Set working directory
 WORKDIR /app
 
 # Copy package.json and lock files
 COPY package.json ./
+COPY package-lock.json ./
+
+RUN npm install --frozen-lockfile --ignore-scripts
+
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
 COPY tsconfig.json ./
 COPY vite.config.ts ./
 COPY postcss.config.mjs ./
-COPY .prettierignore ./
-COPY .gitignore ./
+COPY panda.config.ts ./
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/package-lock.json ./
 
 # Copy source files
 COPY src ./src
 COPY public ./public
 
-# Install dependencies
-RUN npm install
-
+RUN npm run prepare
 # Build the application
 RUN npm run build
 
@@ -30,6 +39,7 @@ WORKDIR /app
 # Copy built assets and necessary files from builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
+
 COPY --from=builder /app/.output ./.output
 
 # Expose the port the app runs on

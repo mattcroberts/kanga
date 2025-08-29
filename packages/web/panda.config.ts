@@ -12,7 +12,9 @@ export default defineConfig({
 
   // Useful for theme customization
   theme: {
-    extend: {},
+    extend: {
+      recipes: {},
+    },
   },
 
   // The output directory for your css system
