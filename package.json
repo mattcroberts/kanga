@@ -1,4 +1,9 @@
 {
+  "private": true,
+  "workspaces": [
+    "infra",
+    "packages/web"
+  ],
   "devDependencies": {
     "@biomejs/biome": "2.2.2",
     "lefthook": "^1.12.3"
