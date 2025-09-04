@@ -1,11 +1,13 @@
 {
   "private": true,
+  "packageManager": "npm@10.9.3",
   "workspaces": [
     "infra",
-    "packages/web"
+    "packages/*"
   ],
   "devDependencies": {
     "@biomejs/biome": "2.2.2",
-    "lefthook": "^1.12.3"
+    "lefthook": "^1.12.3",
+    "turbo": "^2.5.6"
   }
 }

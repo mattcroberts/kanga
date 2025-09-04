@@ -1,5 +1,5 @@
 {
-	"name": "kanga",
+	"name": "@kanga/infra",
 	"version": "0.1.0",
 	"bin": {
 		"kanga": "bin/kanga.js"
