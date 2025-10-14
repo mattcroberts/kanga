@@ -11,6 +11,7 @@ export class KangaInfraStack extends Stack {
 	public readonly cluster: ecs.Cluster;
 	public readonly zone: route53.HostedZone;
 	public readonly certificate: certificatemanager.Certificate;
+	public readonly wildCardCertificate: certificatemanager.Certificate;
 
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
@@ -32,6 +33,15 @@ export class KangaInfraStack extends Stack {
 			domainName: "kanga.irix.dev",
 			validation: certificatemanager.CertificateValidation.fromDns(),
 		});
+
+		this.wildCardCertificate = new certificatemanager.Certificate(
+			this,
+			"KangaWildCardCert",
+			{
+				domainName: "*.irix.dev",
+				validation: certificatemanager.CertificateValidation.fromDns(),
+			},
+		);
 
 		new route53.MxRecord(this, "KangaMxRecord", {
 			zone: this.zone,

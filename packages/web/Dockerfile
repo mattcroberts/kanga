@@ -15,7 +15,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY tsconfig.json ./
-COPY vite.config.ts ./
+COPY vite.config.docker.ts ./
 COPY postcss.config.mjs ./
 COPY panda.config.ts ./
 
@@ -29,7 +29,7 @@ COPY public ./public
 
 RUN npm run prepare
 # Build the application
-RUN npm run build
+RUN npm run build:docker
 
 # Production image
 FROM node:22-alpine AS runner

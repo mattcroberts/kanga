@@ -8,10 +8,14 @@
 		"prepare": "panda codegen",
 		"dev": "vite dev --port 8000",
 		"build": "vite build && tsc --noEmit",
+		"build:docker": "vite build --config vite.config.docker.ts && tsc --noEmit",
 		"start": "node .output/server/index.mjs",
 		"lint": "biome check"
 	},
 	"dependencies": {
+		"@aws-lambda-powertools/parameters": "^2.27.0",
+		"@aws-sdk/client-secrets-manager": "^3.908.0",
+		"@aws-sdk/client-ssm": "^3.908.0",
 		"@clerk/tanstack-react-start": "^0.23.1",
 		"@radix-ui/themes": "^3.2.1",
 		"@tanstack/react-router": "^1.131.10",

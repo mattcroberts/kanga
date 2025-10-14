@@ -5,36 +5,21 @@ import autoprefixer from "autoprefixer";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
-// export default defineConfig({
-// 	server: {
-// 		port: 3000,
-// 	},
-// 	css: {
-// 		postcss: {
-// 			plugins: [pandacss as any, autoprefixer],
-// 		},
-// 	},
-
-// 	plugins: [
-// 		tsConfigPaths({
-// 			projects: ["./tsconfig.json"],
-// 		}),
-// 		tanstackStart({ customViteReactPlugin: true, target: "nodeServer" }),
-// 		viteReact(),
-// 	],
-// });
-
 export default defineConfig({
+	server: {
+		port: 3000,
+	},
 	css: {
 		postcss: {
 			plugins: [pandacss as any, autoprefixer],
 		},
 	},
+
 	plugins: [
 		tsConfigPaths({
 			projects: ["./tsconfig.json"],
 		}),
-		tanstackStart({ customViteReactPlugin: true, target: "aws-lambda" }),
+		tanstackStart({ customViteReactPlugin: true, target: "nodeServer" }),
 		viteReact(),
 	],
 });

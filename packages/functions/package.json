@@ -1,6 +1,6 @@
 {
-  "name": "@kanga/get-products",
-  "version": "1",
+  "name": "@kanga/functions",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "build": "GOOS=linux GOARCH=amd64 go build -o bootstrap get-products.go",
