@@ -12,8 +12,8 @@
 		"bootstrap": "op plugin run -- cdk bootstrap",
 		"deploy": "op plugin run -- cdk deploy --all",
 		"destroy": "op plugin run -- cdk destroy --force --all",
-		"predeploy": "npm run build",
-		"start:all": "npm run bootstrap && npm run deploy"
+		"predeploy": "pnpm run build",
+		"start:all": "pnpm run bootstrap && pnpm run deploy"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.14",

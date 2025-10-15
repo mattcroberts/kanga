@@ -1,0 +1,9 @@
+node_modules
+.git
+.turbo
+*.md
+.env*
+.vscode
+.nitro
+.tanstack
+styled-system

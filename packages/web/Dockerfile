@@ -1,49 +1,38 @@
-# Use official Node.js image as the base
-FROM node:22-alpine AS deps
+FROM node:22-alpine AS pruned
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and lock files
-COPY package.json ./
-COPY package-lock.json ./
+RUN npm install --global corepack@latest
+RUN corepack enable
+RUN corepack prepare pnpm@latest-10 --activate
 
-RUN npm install --frozen-lockfile --ignore-scripts
+COPY . .
+RUN pnpx turbo prune @kanga/web --docker
 
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY tsconfig.json ./
-COPY vite.config.docker.ts ./
-COPY postcss.config.mjs ./
-COPY panda.config.ts ./
+RUN corepack enable
+RUN corepack prepare pnpm@latest-10 --activate
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package.json ./
-COPY --from=deps /app/package-lock.json ./
-
-# Copy source files
-COPY src ./src
-COPY public ./public
-
-RUN npm run prepare
-# Build the application
-RUN npm run build:docker
+COPY --from=pruned /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=pruned /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruned /app/out/json/ .
+COPY --from=pruned /app/out/full/ .
+COPY turbo.json turbo.json
+RUN pnpm install --prefer-offline --frozen-lockfile
+RUN pnpm --filter @kanga/web build:docker
 
 # Production image
-FROM node:22-alpine AS runner
+FROM gcr.io/distroless/nodejs22-debian12 AS runner
 
 WORKDIR /app
 
-# Copy built assets and necessary files from builder
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/packages/web/.output ./.output
 
 # Expose the port the app runs on
 EXPOSE 8000
 
 # Start the application
-CMD ["npm", "run", "start"]
+CMD [".output/server/index.mjs"]
