@@ -30,10 +30,16 @@ export class KangaAppStack extends Stack {
 	constructor(scope: Construct, id: string, props?: KangaAppStackProps) {
 		super(scope, id, props);
 
-		const clerkSecrets = secretsmanager.Secret.fromSecretNameV2(
+		const kangaClerkSecrets = secretsmanager.Secret.fromSecretNameV2(
 			this,
 			"KangaWebClerkSecrets",
 			"dev/KangaWeb/Clerk",
+		);
+
+		const kangaFuncClerkSecrets = secretsmanager.Secret.fromSecretNameV2(
+			this,
+			"KangaFuncClerkSecrets",
+			"prod/KangaFunc/Clerk",
 		);
 
 		if (!props?.certificate) {
@@ -84,14 +90,14 @@ export class KangaAppStack extends Stack {
 						environment: {
 							NODE_ENV: "production",
 							API_GATEWAY: `${api.url}${products.path}`,
-							VITE_CLERK_PUBLISHABLE_KEY: clerkSecrets
+							VITE_CLERK_PUBLISHABLE_KEY: kangaClerkSecrets
 								.secretValueFromJson("VITE_CLERK_PUBLISHABLE_KEY")
 								.unsafeUnwrap(),
 						},
 						logDriver: new ecs.AwsLogDriver({ streamPrefix: "kanga-web-app" }),
 						secrets: {
 							CLERK_SECRET_KEY: ecs.Secret.fromSecretsManager(
-								clerkSecrets,
+								kangaClerkSecrets,
 								"CLERK_SECRET_KEY",
 							),
 						},
@@ -126,8 +132,8 @@ export class KangaAppStack extends Stack {
 			environment: {
 				NODE_ENV: "production",
 				API_GATEWAY: `${api.url}${products.path}`,
-				CLERK_SECRET_ARN: clerkSecrets.secretArn,
-				VITE_CLERK_PUBLISHABLE_KEY: clerkSecrets
+				CLERK_SECRET_ARN: kangaFuncClerkSecrets.secretArn,
+				VITE_CLERK_PUBLISHABLE_KEY: kangaFuncClerkSecrets
 					.secretValueFromJson("VITE_CLERK_PUBLISHABLE_KEY")
 					.unsafeUnwrap(),
 			},
@@ -140,7 +146,7 @@ export class KangaAppStack extends Stack {
 			// provisionedConcurrentExecutions: 1, // Keep 1 instance warm at all times
 		});
 
-		clerkSecrets.grantRead(webFunction);
+		kangaFuncClerkSecrets.grantRead(webFunction);
 
 		this.webFunction = webFunction;
 
@@ -215,6 +221,41 @@ export class KangaAppStack extends Stack {
 			target: route53.RecordTarget.fromAlias(
 				new targets.CloudFrontTarget(distribution),
 			),
+		});
+
+		new route53.CnameRecord(this, "ClerkKangaFuncCnameRecord", {
+			zone: props.zone,
+			recordName: "clerk.kanga-func.irix.dev",
+			domainName: "frontend-api.clerk.services",
+			ttl: cdk.Duration.minutes(5),
+		});
+
+		new route53.CnameRecord(this, "ClerkKangaFuncAccountsCnameRecord", {
+			zone: props.zone,
+			recordName: "accounts.kanga-func.irix.dev",
+			domainName: "accounts.clerk.services",
+			ttl: cdk.Duration.minutes(5),
+		});
+
+		new route53.CnameRecord(this, "ClerkKangaFuncClkmailCnameRecord", {
+			zone: props.zone,
+			recordName: "clkmail.kanga-func.irix.dev",
+			domainName: "mail.4wo81uqkl10p.clerk.services",
+			ttl: cdk.Duration.minutes(5),
+		});
+
+		new route53.CnameRecord(this, "ClerkKangaFuncClkDomainKeyCnameRecord", {
+			zone: props.zone,
+			recordName: "clk._domainkey.kanga-func.irix.dev",
+			domainName: "dkim1.4wo81uqkl10p.clerk.services",
+			ttl: cdk.Duration.minutes(5),
+		});
+
+		new route53.CnameRecord(this, "ClerkKangaFuncClk2DomainKeyCnameRecord", {
+			zone: props.zone,
+			recordName: "clk2._domainkey.kanga-func.irix.dev",
+			domainName: "dkim2.4wo81uqkl10p.clerk.services",
+			ttl: cdk.Duration.minutes(5),
 		});
 
 		new cdk.CfnOutput(this, "WebFunctionArn", {
