@@ -10,7 +10,7 @@ import { css } from "styled-system/css";
 
 export const GlobalLayout = () => {
 	return (
-		<Theme>
+		<Theme appearance="dark">
 			<main>
 				<Flex justify="between">
 					<Link to="/">

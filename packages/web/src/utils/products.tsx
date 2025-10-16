@@ -10,7 +10,12 @@ export type Product = {
 };
 
 export const fetchProduct = createServerFn()
-	.validator((productId: string) => productId)
+	.inputValidator((data: { productId: string }) => {
+		if (typeof data?.productId !== "string" || data?.productId.length === 0) {
+			throw new Error("Invalid productId");
+		}
+		return data.productId;
+	})
 	.handler(async ({ data: productId }) => {
 		return fetchProducts().then((products) => {
 			const product = products.find((p) => p.id === productId);
