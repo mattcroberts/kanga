@@ -38,6 +38,12 @@ export class KangaAppStack extends Stack {
 			handler: "bootstrap",
 			code: lambda.Code.fromAsset("../packages/functions/get-products"),
 		});
+
+		// Grant read permissions to the products table
+		if (props?.productsTable) {
+			props.productsTable.grantReadData(getProductsLambda);
+		}
+
 		const api = new apigateway.LambdaRestApi(this, "GetProductsApi", {
 			handler: getProductsLambda,
 			proxy: false,

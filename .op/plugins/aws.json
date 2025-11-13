@@ -1,0 +1,13 @@
+{
+  "account_id": "7XW3ZM3B5FDZRGZMPLYCNUPHXU",
+  "entrypoint": ["aws"],
+  "credentials": [
+    {
+      "plugin": "aws",
+      "credential_type": "access_key",
+      "usage_id": "access_key",
+      "vault_id": "fqust5yjespinjoazouytu5rja",
+      "item_id": "d4wx7aoszxnpdvqjnvjha35d54"
+    }
+  ]
+}
