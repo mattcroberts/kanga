@@ -1,3 +1,4 @@
 bootstrap
 .aws-sam
 tmp
+env.json

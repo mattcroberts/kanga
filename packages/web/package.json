@@ -11,20 +11,26 @@
 		"build:docker": "vite build --config vite.config.docker.ts && tsc --noEmit",
 		"start": "node .output/server/index.mjs",
 		"lint": "biome check",
-		"docker:build": "docker build -f Dockerfile ../.. -t kanga-web"
+		"docker:build": "docker build -f Dockerfile ../.. -t kanga-web",
+		"sam:local": "pnpm build && sam local start-api",
+		"sam:build": "pnpm build && sam build",
+		"sam:deploy": "sam build && sam deploy --guided",
+		"sam:deploy:fast": "sam build && sam deploy",
+		"deploy:assets": "./deploy.sh"
 	},
 	"dependencies": {
 		"@aws-lambda-powertools/parameters": "^2.27.0",
 		"@aws-sdk/client-secrets-manager": "^3.908.0",
 		"@aws-sdk/client-ssm": "^3.908.0",
-		"@clerk/tanstack-react-start": "^0.26.1",
+		"@clerk/tanstack-react-start": "^0.26.9",
 		"@radix-ui/themes": "^3.2.1",
-		"@tanstack/nitro-v2-vite-plugin": "^1.133.3",
-		"@tanstack/react-query": "^5.90.3",
+		"@tanstack/nitro-v2-vite-plugin": "^1.133.19",
+		"@tanstack/react-query": "^5.90.7",
 		"@tanstack/react-query-devtools": "^5.90.2",
-		"@tanstack/react-router": "^1.133.3",
-		"@tanstack/react-router-devtools": "^1.133.3",
-		"@tanstack/react-start": "^1.133.3",
+		"@tanstack/react-router": "^1.133.19",
+		"@tanstack/react-router-devtools": "^1.133.19",
+		"@tanstack/react-start": "^1.133.19",
+		"nitro": "3.0.1-alpha.0",
 		"radix-ui": "^1.4.3",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
@@ -32,7 +38,7 @@
 	},
 	"devDependencies": {
 		"@pandacss/dev": "^1.0.1",
-		"@tanstack/router-cli": "^1.133.3",
+		"@tanstack/router-cli": "^1.133.19",
 		"@types/node": "^22.18.10",
 		"@types/react": "^19.0.8",
 		"@types/react-dom": "^19.0.3",
@@ -40,7 +46,7 @@
 		"autoprefixer": "^10.4.20",
 		"postcss": "^8.5.1",
 		"typescript": "^5.7.2",
-		"vite": "^7.1.10",
+		"vite": "^7.2.2",
 		"vite-tsconfig-paths": "^5.1.4"
 	}
 }

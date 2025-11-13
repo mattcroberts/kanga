@@ -1,0 +1,20 @@
+[
+  {
+    "productId": "abc123",
+    "name": "Sample Product",
+    "price": 29.99,
+    "description": "A sample product for testing"
+  },
+  {
+    "productId": "def456",
+    "name": "Another Product",
+    "price": 49.99,
+    "description": "Another sample product"
+  },
+  {
+    "productId": "ghi789",
+    "name": "Third Product",
+    "price": 19.99,
+    "description": "Yet another sample product"
+  }
+]

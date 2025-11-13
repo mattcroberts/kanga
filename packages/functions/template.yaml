@@ -15,6 +15,10 @@ Globals:
     # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
     LoggingConfig:
       LogFormat: JSON
+    Environment:
+      Variables:
+        AWS_ACCESS_KEY_ID: !Ref AWSAccessKeyId
+        AWS_SECRET_ACCESS_KEY: !Ref AWSSecretAccessKey
   Api:
     TracingEnabled: true
 Resources:
@@ -23,7 +27,7 @@ Resources:
     Metadata:
       BuildMethod: go1.x
     Properties:
-      CodeUri: lib/
+      CodeUri: get-products/
       Handler: bootstrap
       Runtime: provided.al2023
       Architectures:
@@ -36,7 +40,14 @@ Resources:
             Method: GET
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
+          # DB_HOST: "http://docker.for.mac.localhost:8050"
+          AWS_REGION: "eu-west-2"
+          AWS_ACCESS_KEY_ID:
+            Type: String
+            Description: Access Key ID for DynamoDB
+          AWS_SECRET_ACCESS_KEY:
+            Type: String
+            Description: Secret Access Key for DynamoDB
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

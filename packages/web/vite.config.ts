@@ -1,14 +1,15 @@
 import pandacss from "@pandacss/dev/postcss";
-import { nitroV2Plugin } from "@tanstack/nitro-v2-vite-plugin";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
+import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
 	css: {
 		postcss: {
+			// biome-ignore lint/suspicious/noExplicitAny: bad types
 			plugins: [pandacss as any, autoprefixer],
 		},
 	},
@@ -20,9 +21,11 @@ export default defineConfig({
 			projects: ["./tsconfig.json"],
 		}),
 		tanstackStart(),
-		nitroV2Plugin({
-			preset: "aws_lambda",
-			compatibilityDate: "2025-10-16",
+		nitro({
+			config: {
+				preset: "aws-lambda",
+				compatibilityDate: "2025-11-01",
+			},
 		}),
 		viteReact(),
 	],

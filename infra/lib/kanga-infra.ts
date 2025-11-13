@@ -1,37 +1,18 @@
 import * as cdk from "aws-cdk-lib";
 import { Stack, type StackProps } from "aws-cdk-lib";
 import * as certificatemanager from "aws-cdk-lib/aws-certificatemanager";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import type { Construct } from "constructs";
 
 export class KangaInfraStack extends Stack {
-	public readonly vpc: ec2.Vpc;
-	public readonly cluster: ecs.Cluster;
-	public readonly zone: route53.HostedZone;
-	public readonly certificate: certificatemanager.Certificate;
+	public readonly zone: route53.IHostedZone;
 	public readonly wildCardCertificate: certificatemanager.Certificate;
 
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
-		this.vpc = new ec2.Vpc(this, "KangaVpc", {
-			maxAzs: 3,
-			natGateways: 0, // Disable NAT Gateways for LocalStack compatibility
-		});
-
-		this.cluster = new ecs.Cluster(this, "KangaCluster", {
-			vpc: this.vpc,
-		});
-
 		this.zone = new route53.HostedZone(this, "irix.dev", {
 			zoneName: "irix.dev",
-		});
-
-		this.certificate = new certificatemanager.Certificate(this, "KangaCert", {
-			domainName: "kanga.irix.dev",
-			validation: certificatemanager.CertificateValidation.fromDns(),
 		});
 
 		this.wildCardCertificate = new certificatemanager.Certificate(

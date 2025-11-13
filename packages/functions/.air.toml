@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "start.sh"
-  cmd = "GOOS=linux GOARCH=amd64 go build -o .aws-sam/build/GetProductsFunction/bootstrap ."
+  cmd = "GOOS=linux GOARCH=amd64 go build -C get-products/src -o ../bootstrap get-products.go"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -13,7 +13,7 @@ tmp_dir = "tmp"
   exclude_unchanged = false
   follow_symlink = false
   full_bin = ""
-  include_dir = []
+  include_dir = ["src", "get-products"]
   include_ext = ["go", "tpl", "tmpl", "html"]
   include_file = []
   kill_delay = "0s"

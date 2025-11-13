@@ -4,9 +4,7 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import type * as certificatemanager from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
-import * as ecr from "aws-cdk-lib/aws-ecr";
-import * as ecs from "aws-cdk-lib/aws-ecs";
-import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
@@ -16,25 +14,18 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import type { Construct } from "constructs";
 
 interface KangaAppStackProps extends StackProps {
-	cluster: ecs.Cluster;
-	certificate: certificatemanager.Certificate;
 	wildCardCertificate: certificatemanager.Certificate;
 	cloudFrontCertificate: certificatemanager.Certificate;
-	zone: route53.HostedZone;
+	zone: route53.IHostedZone;
+	productsTable: dynamodb.Table;
+	basketTable: dynamodb.Table;
 }
 
 export class KangaAppStack extends Stack {
-	public readonly fargateService: ecs_patterns.ApplicationLoadBalancedFargateService;
 	public readonly webFunction: lambda.DockerImageFunction;
 
 	constructor(scope: Construct, id: string, props?: KangaAppStackProps) {
 		super(scope, id, props);
-
-		const kangaClerkSecrets = secretsmanager.Secret.fromSecretNameV2(
-			this,
-			"KangaWebClerkSecrets",
-			"dev/KangaWeb/Clerk",
-		);
 
 		const kangaFuncClerkSecrets = secretsmanager.Secret.fromSecretNameV2(
 			this,
@@ -42,14 +33,10 @@ export class KangaAppStack extends Stack {
 			"prod/KangaFunc/Clerk",
 		);
 
-		if (!props?.certificate) {
-			throw new Error("Certificate missing");
-		}
-
 		const getProductsLambda = new lambda.Function(this, "GetProductsLambda", {
 			runtime: lambda.Runtime.PROVIDED_AL2023,
 			handler: "bootstrap",
-			code: lambda.Code.fromAsset("../packages/functions"),
+			code: lambda.Code.fromAsset("../packages/functions/get-products"),
 		});
 		const api = new apigateway.LambdaRestApi(this, "GetProductsApi", {
 			handler: getProductsLambda,
@@ -64,63 +51,9 @@ export class KangaAppStack extends Stack {
 			throw new Error("No Api path");
 		}
 
-		this.fargateService =
-			new ecs_patterns.ApplicationLoadBalancedFargateService(
-				this,
-				"KangaFargateService",
-				{
-					cluster: props?.cluster,
-					cpu: 256,
-					memoryLimitMiB: 512,
-					desiredCount: 2,
-					runtimePlatform: {
-						cpuArchitecture: ecs.CpuArchitecture.ARM64,
-						operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
-					},
-					taskImageOptions: {
-						image: ecs.ContainerImage.fromEcrRepository(
-							ecr.Repository.fromRepositoryName(
-								this,
-								"KangaWebEcrRepo",
-								"cdk-hnb659fds-container-assets-814588431593-eu-west-2",
-							),
-							"4fe6b487e9681d30de9b354b1bce4a41517bed39a465287559b0f6f95adbdc76",
-						),
-						containerName: "kanga-web",
-						environment: {
-							NODE_ENV: "production",
-							API_GATEWAY: `${api.url}${products.path}`,
-							VITE_CLERK_PUBLISHABLE_KEY: kangaClerkSecrets
-								.secretValueFromJson("VITE_CLERK_PUBLISHABLE_KEY")
-								.unsafeUnwrap(),
-						},
-						logDriver: new ecs.AwsLogDriver({ streamPrefix: "kanga-web-app" }),
-						secrets: {
-							CLERK_SECRET_KEY: ecs.Secret.fromSecretsManager(
-								kangaClerkSecrets,
-								"CLERK_SECRET_KEY",
-							),
-						},
-						containerPort: 3000,
-					},
-					assignPublicIp: true,
-					publicLoadBalancer: true,
-					certificate: props?.certificate,
-					redirectHTTP: true,
-				},
-			);
-
 		if (!props?.zone) {
 			throw new Error("Hosted zone is required to create alias record");
 		}
-
-		new route53.ARecord(this, "AliasRecord", {
-			zone: props.zone,
-			recordName: "kanga.irix.dev",
-			target: route53.RecordTarget.fromAlias(
-				new targets.LoadBalancerTarget(this.fargateService.loadBalancer),
-			),
-		});
 
 		const webFunction = new lambda.Function(this, "KangaWebFunction", {
 			runtime: lambda.Runtime.NODEJS_22_X,
@@ -139,7 +72,6 @@ export class KangaAppStack extends Stack {
 			},
 		});
 
-		// Create alias with provisioned concurrency
 		const alias = new lambda.Alias(this, "KangaWebFunctionAlias2", {
 			aliasName: "provisioned",
 			version: webFunction.currentVersion,
@@ -151,7 +83,7 @@ export class KangaAppStack extends Stack {
 		this.webFunction = webFunction;
 
 		const webApi = new apigateway.LambdaRestApi(this, "KangaWebApi", {
-			handler: alias, // Use alias instead of function directly
+			handler: alias,
 			proxy: true,
 			restApiName: "KangaWebService",
 		});
@@ -256,23 +188,6 @@ export class KangaAppStack extends Stack {
 			recordName: "clk2._domainkey.kanga-func.irix.dev",
 			domainName: "dkim2.4wo81uqkl10p.clerk.services",
 			ttl: cdk.Duration.minutes(5),
-		});
-
-		new cdk.CfnOutput(this, "WebFunctionArn", {
-			value: webApi.url,
-			exportName: "KangaWebFunctionArn",
-		});
-
-		new cdk.CfnOutput(this, "CloudFrontURL", {
-			value: `https://${distribution.distributionDomainName}`,
-			description: "CloudFront distribution URL",
-			exportName: "KangaCloudFrontURL",
-		});
-
-		new cdk.CfnOutput(this, "CustomDomainURL", {
-			value: "https://kanga-func.irix.dev",
-			description: "Custom domain URL",
-			exportName: "KangaCustomDomainURL",
 		});
 	}
 }

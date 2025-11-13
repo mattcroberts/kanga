@@ -1,0 +1,21 @@
+{
+  "name": "local-dynamo",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "docker-compose up",
+    "seed": "tsx seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.908.0",
+    "@aws-sdk/util-dynamodb": "^3.908.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
+  }
+}

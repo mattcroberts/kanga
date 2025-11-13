@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "GOOS=linux GOARCH=amd64 go build -o bootstrap get-products.go",
+    "build": "GOOS=linux GOARCH=amd64 go build -C get-products/src -o ../bootstrap get-products.go",
     "dev": "air"
   }
 }
