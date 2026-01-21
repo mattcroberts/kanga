@@ -2,7 +2,7 @@ import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
 export type Product = {
-	id: string;
+	productId: string;
 	title: string;
 	description: string;
 	price: number;

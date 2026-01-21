@@ -22,4 +22,7 @@ export default defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
+	optimizeDeps: {
+		include: ["@clerk/tanstack-react-start", "cookie"],
+	},
 });

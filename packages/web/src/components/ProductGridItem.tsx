@@ -9,7 +9,7 @@ export const ProductGridItem: FC<{ item: Product }> = ({ item }) => {
 		<Link
 			className={css({})}
 			to={`/item/$productId`}
-			params={{ productId: item.id }}
+			params={{ productId: item.productId }}
 		>
 			<Card variant="surface" size="1">
 				<Heading>{item.title}</Heading>

@@ -9,9 +9,10 @@ export const ProductGrid: FC<{ items: Product[] }> = ({ items }) => {
 			columns={"repeat(auto-fill, minmax(300px, 1fr))"}
 			gap="3"
 			width="auto"
+			mx="6"
 		>
 			{items.map((item) => (
-				<ProductGridItem key={item.id} item={item} />
+				<ProductGridItem key={item.productId} item={item} />
 			))}
 		</Grid>
 	);

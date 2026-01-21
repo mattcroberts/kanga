@@ -16,8 +16,8 @@ const client = new DynamoDBClient({
   endpoint: DYNAMODB_ENDPOINT,
   region: "eu-west-2",
   credentials: {
-    accessKeyId: "dummy",
-    secretAccessKey: "dummy",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "dummy",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "dummy",
   },
 });
 
